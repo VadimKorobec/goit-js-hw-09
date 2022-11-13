@@ -35,7 +35,6 @@ function onTimer() {
   refs.startBtn.disabled = true;
   intervalId = setInterval(() => {
     const dateSelected = new Date(refs.inputEl.value);
-
     const nowTime = new Date();
     const deltaTime = dateSelected - nowTime;
 
