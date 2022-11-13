@@ -4,8 +4,16 @@ import { Notify } from 'notiflix';
 
 const refs = {
   inputEl: document.querySelector('#datetime-picker'),
-  startBtn: document.querySelector('button[data-start]'),
+  startBtn: document.querySelector('[data-start]'),
+  daysTimer: document.querySelector('[data-days]'),
+  hourseTimer: document.querySelector('[data-hours]'),
+  minutesTimer: document.querySelector('[data-minutes]'),
+  secondsTimer: document.querySelector('[data-seconds]'),
 };
+
+let intervalId = null;
+
+refs.startBtn.disabled = true;
 
 const options = {
   enableTime: true,
@@ -13,6 +21,126 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    if (selectedDates[0] <= new Date()) {
+      refs.startBtn.disabled = true;
+      Notify.failure('Please choose a date in the future');
+    } else {
+      refs.startBtn.disabled = false;
+      refs.startBtn.addEventListener('click', onTimer);
+    }
   },
 };
+
+function onTimer() {
+  refs.startBtn.disabled = true;
+
+  intervalId = setInterval(() => {
+    const dateSelected = new Date(inputEl.value.replace(/-/g, '/')).getTime();
+    const nowTime = new Date().getTime();
+    const deltaTime = dateSelected - nowTime;
+
+    const { days, hours, minutes, seconds } = convertMs(deltaTime);
+
+    aysTimer.innerHTML = days < 10 ? pad(days) : days;
+    daysTimer.innerHTML = hours < 10 ? pad(hours) : hours;
+    minutesTimer.innerHTML = minutes < 10 ? pad(minutes) : minutes;
+    secondsTimer.innerHTML = seconds < 10 ? pad(seconds) : seconds;
+
+    if (deltaTime < 1000) {
+      clearInterval(intervalId);
+      btnStartEl.disabled = false;
+    }
+  }, 1000);
+}
+
+function pad(value) {
+  return String(value).padStart(2, '0');
+}
+
+function convertMs(ms) {
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const days = pad(Math.floor(ms / day));
+  const hours = pad(Math.floor((ms % day) / hour));
+  const minutes = pad(Math.floor(((ms % day) % hour) / minute));
+  const seconds = pad(Math.floor((((ms % day) % hour) % minute) / second));
+
+  return { days, hours, minutes, seconds };
+}
+
+flatpickr('#datetime-picker', options);
+// let getEl = selector => document.querySelector(selector);
+// const inputPicker = getEl('#datetime-picker');
+// const btnStartEl = getEl('[data-start]');
+// const daysEl = getEl('[data-days]');
+// const hoursEl = getEl('[data-hours]');
+// const minutesEl = getEl('[data-minutes]');
+// const secondsEl = getEl('[data-seconds]');
+
+// let timerId = null;
+
+// btnStartEl.disabled = true;
+
+// const options = {
+//   enableTime: true,
+//   time_24hr: true,
+//   defaultDate: new Date(),
+//   minuteIncrement: 1,
+//   onClose(selectedDate) {
+//     if (selectedDate[0] <= new Date()) {
+//       btnStartEl.disabled = true;
+//       Notify.failure('Please choose a date in the future');
+//     } else {
+//       btnStartEl.disabled = false;
+//       btnStartEl.addEventListener('click', timer);
+
+//       function timer() {
+//         timerId = setInterval(() => {
+//           btnStartEl.disabled = true;
+
+//           const dateSelected = new Date(
+//             inputPicker.value.replace(/-/g, '/')
+//           ).getTime();
+//           const nowTime = new Date().getTime();
+//           const deltaTime = dateSelected - nowTime;
+
+//           const { days, hours, minutes, seconds } = convertMs(deltaTime);
+
+//           daysEl.innerHTML = days < 10 ? addLeadingZero(days) : days;
+//           hoursEl.innerHTML = hours < 10 ? addLeadingZero(hours) : hours;
+//           minutesEl.innerHTML =
+//             minutes < 10 ? addLeadingZero(minutes) : minutes;
+//           secondsEl.innerHTML =
+//             seconds < 10 ? addLeadingZero(seconds) : seconds;
+
+//           if (deltaTime < 1000) {
+//             clearInterval(timerId);
+//             btnStartEl.disabled = false;
+//           }
+//         }, 1000);
+//       }
+
+//       function addLeadingZero(value) {
+//         const stringValue = String(value);
+//         return stringValue.padStart(2, '0');
+//       }
+
+//       function convertMs(ms) {
+//         const second = 1000;
+//         const minute = second * 60;
+//         const hour = minute * 60;
+//         const day = hour * 24;
+
+//         const days = Math.floor(ms / day);
+//         const hours = Math.floor((ms % day) / hour);
+//         const minutes = Math.floor(((ms % day) % hour) / minute);
+//         const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+
+//         return { days, hours, minutes, seconds };
+//       }
+//     }
+//   },
+// };
